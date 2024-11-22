@@ -13,143 +13,165 @@ function Write-Log {
 }
 
 # ================================
-# Step 1: Define services to manage
+# Toggles to enable or disable each section
 # ================================
-Write-Log "INFO: Starting service management step"
-$services = @(
-    "ArmouryCrateControlInterface",
-    "AsHidService",
-    "ASUSOptimization",
-    "AsusAppService",
-    "ASUSLinkNear",
-    "ASUSLinkRemote",
-    "ASUSSoftwareManager",
-    "ASUSLiveUpdateAgent",
-    "ASUSSwitch",
-    "ASUSSystemAnalysis",
-    "ASUSSystemDiagnosis",
-    "AsusCertService",
-    "ArmouryCrateSE.Service",
-    "ArmouryCrate.Service",
-    "LightingService",
-    "ArmouryCrateSEService",
-    "ArmouryCrateService",
-    "LightingService",
-    "AsusAppService",
-    "ArmouryCrateControlInterface",
-    "ASUSOptimization",
-    "ASUSSoftwareManager",
-    "ASUSSwitch",
-    "ASUSSystemAnalysis",
-    "ASUSSystemDiagnosis"
-)
+$enableServiceManagement = $true
+$enableTaskDisabling = $true
+$enableAppRemoval = $true
+$enableNetworkConfig = $true
+$enableStartupProgramDisable = $true
+$enablePowerSettingsOptimization = $true
 
 # ================================
-# Step 2: Process each service
+# Step 1: Define services to manage
 # ================================
-Write-Log "INFO: Processing each service to stop and disable"
-foreach ($service in $services) {
-    try {
-        $svc = Get-Service -Name $service -ErrorAction Stop
-        if ($svc.Status -eq 'Running') {
-            Stop-Service -Name $service -Force
-            Write-Log "INFO: Stopped service: $service"
+if ($enableServiceManagement) {
+    Write-Log "INFO: Starting service management step"
+    $services = @(
+        "ArmouryCrateControlInterface",
+        "AsHidService",
+        "ASUSOptimization",
+        "AsusAppService",
+        "ASUSLinkNear",
+        "ASUSLinkRemote",
+        "ASUSSoftwareManager",
+        "ASUSLiveUpdateAgent",
+        "ASUSSwitch",
+        "ASUSSystemAnalysis",
+        "ASUSSystemDiagnosis",
+        "AsusCertService",
+        "ArmouryCrateSE.Service",
+        "ArmouryCrate.Service",
+        "LightingService",
+        "ArmouryCrateSEService",
+        "ArmouryCrateService",
+        "LightingService",
+        "AsusAppService",
+        "ArmouryCrateControlInterface",
+        "ASUSOptimization",
+        "ASUSSoftwareManager",
+        "ASUSSwitch",
+        "ASUSSystemAnalysis",
+        "ASUSSystemDiagnosis"
+    )
+
+    # ================================
+    # Step 2: Process each service
+    # ================================
+    Write-Log "INFO: Processing each service to stop and disable"
+    foreach ($service in $services) {
+        try {
+            $svc = Get-Service -Name $service -ErrorAction Stop
+            if ($svc.Status -eq 'Running') {
+                Stop-Service -Name $service -Force
+                Write-Log "INFO: Stopped service: $service"
+            }
+            Set-Service -Name $service -StartupType Disabled
+            Write-Log "INFO: Disabled service: $service"
+        } catch {
+            Write-Log "ERROR: Failed to process service: $service - $_"
         }
-        Set-Service -Name $service -StartupType Disabled
-        Write-Log "INFO: Disabled service: $service"
-    } catch {
-        Write-Log "ERROR: Failed to process service: $service - $_"
     }
 }
 
 # ================================
 # Step 3: Disable ASUS-related scheduled tasks
 # ================================
-Write-Log "INFO: Starting scheduled task management step"
-$tasks = Get-ScheduledTask -TaskPath '\' | Where-Object { $_.TaskName -like '*ASUS*' -or $_.TaskName -like '*ArmouryCrate*' -or $_.TaskName -like '*LightingService*' }
+if ($enableTaskDisabling) {
+    Write-Log "INFO: Starting scheduled task management step"
+    $tasks = Get-ScheduledTask -TaskPath '\' | Where-Object { $_.TaskName -like '*ASUS*' -or $_.TaskName -like '*ArmouryCrate*' -or $_.TaskName -like '*LightingService*' }
 
-foreach ($task in $tasks) {
-    try {
-        Disable-ScheduledTask -TaskName $task.TaskName
-        Write-Log "INFO: Disabled scheduled task: $($task.TaskName)"
-    } catch {
-        Write-Log "ERROR: Failed to process scheduled task: $($task.TaskName) - $_"
-    }
-}
-
-# ================================
-# Step 4: Remove ASUS applications (optional)
-# ================================
-Write-Log "INFO: Starting application removal step"
- Get-AppxPackage | Where-Object {$_.Name -like "*ASUS*"} | ForEach-Object {
-     try {
-         Remove-AppxPackage -Package $_.PackageFullName -ErrorAction Stop
-         Write-Log "INFO: Removed application: $($_.Name)"
-     } catch {
-         Write-Log "ERROR: Failed to remove application: $($_.Name) - $_"
-     }
-}
-
-# ================================
-# Step 5: Network/Firewall configurations (optional)
-# ================================
-Write-Log "INFO: Starting network/firewall configurations step"
-$hostsEntries = @(
-    "0.0.0.0 telemetry.asus.com",
-    "0.0.0.0 asustechnologyhub.com",
-    "0.0.0.0 diagnosis.asus.com",
-    "0.0.0.0 liveupdate01.asus.com",
-    "0.0.0.0 liveupdate.asus.com",
-    "0.0.0.0 dlcdnet.asus.com",
-    "0.0.0.0 fwupdate.asus.com",
-    "0.0.0.0 devicehub.asus.com",
-    "0.0.0.0 aura-sync.asus.com",
-    "0.0.0.0 armourycrate.asus.com",
-    "0.0.0.0 crl.asus.com",
-    "0.0.0.0 cdn.armourycrate.asus.com",
-    "0.0.0.0 link.asus.com",
-    "0.0.0.0 remote.asus.com",
-    "0.0.0.0 device-manager.asus.com",
-    "0.0.0.0 systemupdate.asus.com",
-    "0.0.0.0 settingshub.asus.com"
-)
-
-foreach ($entry in $hostsEntries) {
-    try {
-        Add-Content -Path "$env:windir\System32\drivers\etc\hosts" -Value $entry -Force
-        Write-Log "INFO: Added entry to hosts file: $entry"
-    } catch {
-        Write-Log "ERROR: Failed to add entry to hosts file: $entry - $_"
-    }
-}
-
-# ================================
-# Step 6: Disable Startup Programs (optional)
-# ================================
-Write-Log "INFO: Starting startup program disable step"
-$startupPrograms = @("ASUS Smart Gesture", "ASUS Splendid Video", "ASUS Quick Gesture", "ASUS Battery Health Charging")
-foreach ($program in $startupPrograms) {
-    try {
-        Get-CimInstance -ClassName Win32_StartupCommand | Where-Object {$_.Name -like "*$program*"} | ForEach-Object {
-            $_ | Remove-CimInstance
-            Write-Log "INFO: Disabled startup program: $($_.Name)"
+    foreach ($task in $tasks) {
+        try {
+            Disable-ScheduledTask -TaskName $task.TaskName
+            Write-Log "INFO: Disabled scheduled task: $($task.TaskName)"
+        } catch {
+            Write-Log "ERROR: Failed to process scheduled task: $($task.TaskName) - $_"
         }
-    } catch {
-        Write-Log "ERROR: Failed to disable startup program: $program - $_"
     }
 }
 
 # ================================
-# Step 7: Optimize Power Settings (optional)
+# Step 4: Remove ASUS applications
 # ================================
-Write-Log "INFO: Starting power settings optimization step"
-try {
-    powercfg -change -standby-timeout-ac 0
-    powercfg -change -hibernate-timeout-ac 0
-    powercfg -change -monitor-timeout-ac 10
-    Write-Log "INFO: Optimized power settings for performance"
-} catch {
-    Write-Log "ERROR: Failed to optimize power settings - $_"
+if ($enableAppRemoval) {
+    Write-Log "INFO: Starting application removal step"
+    Get-AppxPackage | Where-Object {$_.Name -like "*ASUS*"} | ForEach-Object {
+        try {
+            Remove-AppxPackage -Package $_.PackageFullName -ErrorAction Stop
+            Write-Log "INFO: Removed application: $($_.Name)"
+        } catch {
+            Write-Log "ERROR: Failed to remove application: $($_.Name) - $_"
+        }
+    }
+}
+
+# ================================
+# Step 5: Network/Firewall configurations
+# ================================
+if ($enableNetworkConfig) {
+    Write-Log "INFO: Starting network/firewall configurations step"
+    $hostsEntries = @(
+        "0.0.0.0 telemetry.asus.com",
+        "0.0.0.0 asustechnologyhub.com",
+        "0.0.0.0 diagnosis.asus.com",
+        "0.0.0.0 liveupdate01.asus.com",
+        "0.0.0.0 liveupdate.asus.com",
+        "0.0.0.0 dlcdnet.asus.com",
+        "0.0.0.0 fwupdate.asus.com",
+        "0.0.0.0 devicehub.asus.com",
+        "0.0.0.0 aura-sync.asus.com",
+        "0.0.0.0 armourycrate.asus.com",
+        "0.0.0.0 crl.asus.com",
+        "0.0.0.0 cdn.armourycrate.asus.com",
+        "0.0.0.0 link.asus.com",
+        "0.0.0.0 remote.asus.com",
+        "0.0.0.0 device-manager.asus.com",
+        "0.0.0.0 systemupdate.asus.com",
+        "0.0.0.0 settingshub.asus.com"
+    )
+
+    foreach ($entry in $hostsEntries) {
+        try {
+            Add-Content -Path "$env:windir\System32\drivers\etc\hosts" -Value $entry -Force
+            Write-Log "INFO: Added entry to hosts file: $entry"
+        } catch {
+            Write-Log "ERROR: Failed to add entry to hosts file: $entry - $_"
+        }
+    }
+}
+
+# ================================
+# Step 6: Disable Startup Programs
+# ================================
+if ($enableStartupProgramDisable) {
+    Write-Log "INFO: Starting startup program disable step"
+    $startupPrograms = @("ASUS Smart Gesture", "ASUS Splendid Video", "ASUS Quick Gesture", "ASUS Battery Health Charging")
+    foreach ($program in $startupPrograms) {
+        try {
+            Get-CimInstance -ClassName Win32_StartupCommand | Where-Object {$_.Name -like "*$program*"} | ForEach-Object {
+                $_ | Remove-CimInstance
+                Write-Log "INFO: Disabled startup program: $($_.Name)"
+            }
+        } catch {
+            Write-Log "ERROR: Failed to disable startup program: $program - $_"
+        }
+    }
+}
+
+# ================================
+# Step 7: Optimize Power Settings
+# ================================
+if ($enablePowerSettingsOptimization) {
+    Write-Log "INFO: Starting power settings optimization step"
+    try {
+        powercfg -change -standby-timeout-ac 0
+        powercfg -change -hibernate-timeout-ac 0
+        powercfg -change -monitor-timeout-ac 10
+        Write-Log "INFO: Optimized power settings for performance"
+    } catch {
+        Write-Log "ERROR: Failed to optimize power settings - $_"
+    }
 }
 
 # ================================
