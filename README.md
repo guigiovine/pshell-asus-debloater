@@ -12,3 +12,8 @@ This PowerShell script is intended to help users of ASUS laptops and desktops ea
 - [PowerShell](https://docs.microsoft.com/en-us/powershell/)
 
 ## Setup
+
+## Show your support
+If you like this, please consider making a donation! 
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/ggiovine)
