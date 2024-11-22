@@ -76,8 +76,7 @@ The script is broken down into the following steps:
 
 ## Compatibility
 
-- Tested on ASUS laptops and desktops running Windows 10 and Windows 11.
-- Requires PowerShell version 5.1 or later.
+- Tested on ASUS ROG Zephyrus GU603VV running Windows 11 32H2.
 
 ## Contributions
 
