@@ -42,13 +42,13 @@ The script is broken down into the following steps:
 2. **Disable Scheduled Tasks**
    - Identifies and disables scheduled tasks related to ASUS services (e.g., Armoury Crate, LightingService).
 
-3. **Remove ASUS Applications** (Optional)
+3. **Remove ASUS Applications** 
    - Searches for installed ASUS applications and removes them from the system.
 
-4. **Network and Firewall Configurations** (Optional)
+4. **Network and Firewall Configurations**
    - Adds entries to the `hosts` file to block known ASUS telemetry and update domains.
 
-5. **Disable Startup Programs** (Optional)
+5. **Disable Startup Programs**
    - Disables ASUS-specific startup programs, such as:
      - ASUS Smart Gesture
      - ASUS Splendid Video
@@ -56,7 +56,7 @@ The script is broken down into the following steps:
      - ASUS Battery Health Charging
    - Helps reduce boot time and prevent unnecessary programs from running in the background.
 
-6. **Optimize Power Settings** (Optional)
+6. **Optimize Power Settings** 
    - Adjusts power settings to optimize system performance by:
      - Disabling standby and hibernate timeout on AC power.
      - Setting monitor timeout to 10 minutes on AC power.
