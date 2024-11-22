@@ -124,6 +124,35 @@ foreach ($entry in $hostsEntries) {
 }
 
 # ================================
+# Step 6: Disable Startup Programs (optional)
+# ================================
+Write-Log "INFO: Starting startup program disable step"
+$startupPrograms = @("ASUS Smart Gesture", "ASUS Splendid Video", "ASUS Quick Gesture", "ASUS Battery Health Charging")
+foreach ($program in $startupPrograms) {
+    try {
+        Get-CimInstance -ClassName Win32_StartupCommand | Where-Object {$_.Name -like "*$program*"} | ForEach-Object {
+            $_ | Remove-CimInstance
+            Write-Log "INFO: Disabled startup program: $($_.Name)"
+        }
+    } catch {
+        Write-Log "ERROR: Failed to disable startup program: $program - $_"
+    }
+}
+
+# ================================
+# Step 7: Optimize Power Settings (optional)
+# ================================
+Write-Log "INFO: Starting power settings optimization step"
+try {
+    powercfg -change -standby-timeout-ac 0
+    powercfg -change -hibernate-timeout-ac 0
+    powercfg -change -monitor-timeout-ac 10
+    Write-Log "INFO: Optimized power settings for performance"
+} catch {
+    Write-Log "ERROR: Failed to optimize power settings - $_"
+}
+
+# ================================
 # Final Step: Log completion
 # ================================
 Write-Log "INFO: Debloating and optimization completed."

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This PowerShell script is designed to debloat and optimize ASUS PCs by disabling unwanted services, scheduled tasks, and telemetry, as well as removing unnecessary applications. The script also provides options to modify the `hosts` file to block ASUS telemetry and other related domains. This tool can significantly improve the performance and reduce unwanted processes running in the background.
+This PowerShell script is designed to debloat and optimize ASUS PCs by disabling unwanted services, scheduled tasks, and telemetry, as well as removing unnecessary applications. The script also provides options to modify the `hosts` file to block ASUS telemetry and other related domains, disable startup programs, and optimize power settings. This tool can significantly improve the performance and reduce unwanted processes running in the background.
 
 ## Features
 
@@ -12,6 +12,8 @@ This PowerShell script is designed to debloat and optimize ASUS PCs by disabling
 - **Disable Scheduled Tasks**: Disables ASUS-related scheduled tasks that may run in the background, such as telemetry, updates, and maintenance tasks.
 - **Remove Bloatware Applications**: Optionally removes ASUS pre-installed applications that are typically unnecessary for most users.
 - **Block Telemetry Domains**: Modifies the `hosts` file to block known ASUS telemetry and tracking domains.
+- **Disable Startup Programs**: Disables ASUS-specific startup programs to reduce boot time and background processes.
+- **Optimize Power Settings**: Adjusts power settings to optimize system performance, including disabling standby, hibernate, and adjusting monitor timeouts.
 - **Logging**: Logs every step to a log file located in the same directory as the script.
 
 ## Usage Instructions
@@ -46,7 +48,20 @@ The script is broken down into the following steps:
 4. **Network and Firewall Configurations** (Optional)
    - Adds entries to the `hosts` file to block known ASUS telemetry and update domains.
 
-5. **Log Completion**
+5. **Disable Startup Programs** (Optional)
+   - Disables ASUS-specific startup programs, such as:
+     - ASUS Smart Gesture
+     - ASUS Splendid Video
+     - ASUS Quick Gesture
+     - ASUS Battery Health Charging
+   - Helps reduce boot time and prevent unnecessary programs from running in the background.
+
+6. **Optimize Power Settings** (Optional)
+   - Adjusts power settings to optimize system performance by:
+     - Disabling standby and hibernate timeout on AC power.
+     - Setting monitor timeout to 10 minutes on AC power.
+
+7. **Log Completion**
    - Logs the completion of the debloating and optimization process.
 
 ## Log File
@@ -61,7 +76,8 @@ The script is broken down into the following steps:
 
 ## Compatibility
 
-- Tested on ASUS ROG Zephyrus GU603VV running Windows 11 32H2.
+- Tested on ASUS laptops and desktops running Windows 10 and Windows 11.
+- Requires PowerShell version 5.1 or later.
 
 ## Contributions
 
