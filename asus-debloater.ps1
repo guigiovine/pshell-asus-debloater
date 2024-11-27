@@ -27,6 +27,7 @@ $enablePowerSettingsOptimization = $true
 # ================================
 if ($enableServiceManagement) {
     Write-Log "INFO: Starting service management step"
+    # Predefined list of services
     $services = @(
         "ArmouryCrateControlInterface",
         "AsHidService",
@@ -52,14 +53,24 @@ if ($enableServiceManagement) {
         "ASUSSoftwareManager",
         "ASUSSwitch",
         "ASUSSystemAnalysis",
-        "ASUSSystemDiagnosis"
+        "ASUSSystemDiagnosis",
+        "ASUS Dial Service",
+        "ASUS ScreenXpert Host Service",
+        "ASUSProArtService",
+        "ASUSProArtUpdateService"
     )
+
+    # Add wildcard-based services
+    $wildcardServices = Get-Service | Where-Object { $_.Name -like '*ASUS*' -or $_.Name -like '*ArmouryCrate*' -or $_.Name -like '*LightingService*' }
+
+    # Combine predefined list and wildcard-based services, remove duplicates
+    $allServices = ($services + $wildcardServices.Name) | Sort-Object -Unique
 
     # ================================
     # Step 2: Process each service
     # ================================
     Write-Log "INFO: Processing each service to stop and disable"
-    foreach ($service in $services) {
+    foreach ($service in $allServices) {
         try {
             $svc = Get-Service -Name $service -ErrorAction Stop
             if ($svc.Status -eq 'Running') {
