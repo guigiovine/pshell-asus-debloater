@@ -1,7 +1,6 @@
 # Log file path
 $logFilePath = "$(Get-Location)\asus-debloater.log"
 
-# Function to write log messages in the specified format
 function Write-Log {
     param (
         [string]$message
@@ -9,7 +8,18 @@ function Write-Log {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "$timestamp - $message"
     $logMessage | Out-File -FilePath $logFilePath -Append -Encoding utf8
-    Write-Host $logMessage
+    
+    if ($message -like "SUCCESS:*") {
+        Write-Host $logMessage -ForegroundColor Green
+    } elseif ($message -like "INFO:*") {
+        Write-Host $logMessage
+    } elseif ($message -like "WARN:*") {
+        Write-Host $logMessage -ForegroundColor Yellow
+    } elseif ($message -like "ERROR:*") {
+        Write-Host $logMessage -ForegroundColor Red
+    } else {
+        Write-Host $logMessage
+    }
 }
 
 # ================================
@@ -75,10 +85,10 @@ if ($enableServiceManagement) {
             $svc = Get-Service -Name $service -ErrorAction Stop
             if ($svc.Status -eq 'Running') {
                 Stop-Service -Name $service -Force
-                Write-Log "INFO: Stopped service: $service"
+                Write-Log "SUCCESS: Stopped service: $service"
             }
             Set-Service -Name $service -StartupType Disabled
-            Write-Log "INFO: Disabled service: $service"
+            Write-Log "SUCCESS: Disabled service: $service"
         } catch {
             Write-Log "ERROR: Failed to process service: $service - $_"
         }
@@ -95,7 +105,7 @@ if ($enableTaskDisabling) {
     foreach ($task in $tasks) {
         try {
             Disable-ScheduledTask -TaskName $task.TaskName
-            Write-Log "INFO: Disabled scheduled task: $($task.TaskName)"
+            Write-Log "SUCCESS: Disabled scheduled task: $($task.TaskName)"
         } catch {
             Write-Log "ERROR: Failed to process scheduled task: $($task.TaskName) - $_"
         }
@@ -110,7 +120,7 @@ if ($enableAppRemoval) {
     Get-AppxPackage | Where-Object {$_.Name -like "*ASUS*"} | ForEach-Object {
         try {
             Remove-AppxPackage -Package $_.PackageFullName -ErrorAction Stop
-            Write-Log "INFO: Removed application: $($_.Name)"
+            Write-Log "SUCCESS: Removed application: $($_.Name)"
         } catch {
             Write-Log "ERROR: Failed to remove application: $($_.Name) - $_"
         }
@@ -145,7 +155,7 @@ if ($enableNetworkConfig) {
     foreach ($entry in $hostsEntries) {
         try {
             Add-Content -Path "$env:windir\System32\drivers\etc\hosts" -Value $entry -Force
-            Write-Log "INFO: Added entry to hosts file: $entry"
+            Write-Log "SUCCESS: Added entry to hosts file: $entry"
         } catch {
             Write-Log "ERROR: Failed to add entry to hosts file: $entry - $_"
         }
@@ -162,7 +172,7 @@ if ($enableStartupProgramDisable) {
         try {
             Get-CimInstance -ClassName Win32_StartupCommand | Where-Object {$_.Name -like "*$program*"} | ForEach-Object {
                 $_ | Remove-CimInstance
-                Write-Log "INFO: Disabled startup program: $($_.Name)"
+                Write-Log "SUCCESS: Disabled startup program: $($_.Name)"
             }
         } catch {
             Write-Log "ERROR: Failed to disable startup program: $program - $_"
@@ -179,7 +189,7 @@ if ($enablePowerSettingsOptimization) {
         powercfg -change -standby-timeout-ac 0
         powercfg -change -hibernate-timeout-ac 0
         powercfg -change -monitor-timeout-ac 10
-        Write-Log "INFO: Optimized power settings for performance"
+        Write-Log "SUCCESS: Optimized power settings for performance"
     } catch {
         Write-Log "ERROR: Failed to optimize power settings - $_"
     }
@@ -188,4 +198,4 @@ if ($enablePowerSettingsOptimization) {
 # ================================
 # Final Step: Log completion
 # ================================
-Write-Log "INFO: Debloating and optimization completed."
+Write-Log "SUCCESS: Debloating and optimization completed."
