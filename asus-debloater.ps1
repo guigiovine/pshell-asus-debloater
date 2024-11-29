@@ -1,6 +1,7 @@
 # Log file path
 $logFilePath = "$(Get-Location)\asus-debloater.log"
 
+# Function to write log messages in the specified format, with colored output
 function Write-Log {
     param (
         [string]$message
@@ -31,6 +32,7 @@ $enableAppRemoval = $true
 $enableNetworkConfig = $true
 $enableStartupProgramDisable = $true
 $enablePowerSettingsOptimization = $true
+$enableMcAfeeRemoval = $true
 
 # ================================
 # Step 1: Define services to manage
@@ -192,6 +194,37 @@ if ($enablePowerSettingsOptimization) {
         Write-Log "SUCCESS: Optimized power settings for performance"
     } catch {
         Write-Log "ERROR: Failed to optimize power settings - $_"
+    }
+}
+
+# ================================
+# Step 8: Disable and Remove McAfee
+# ================================
+if ($enableMcAfeeRemoval) {
+    Write-Log "INFO: Starting McAfee removal step"
+
+    $mcAfeeServices = Get-Service | Where-Object { $_.DisplayName -like '*McAfee*' }
+    foreach ($service in $mcAfeeServices) {
+        try {
+            if ($service.Status -eq 'Running') {
+                Stop-Service -Name $service.Name -Force
+                Write-Log "SUCCESS: Stopped McAfee service: $($service.DisplayName)"
+            }
+            Set-Service -Name $service.Name -StartupType Disabled
+            Write-Log "SUCCESS: Disabled McAfee service: $($service.DisplayName)"
+        } catch {
+            Write-Log "ERROR: Failed to stop or disable McAfee service: $($service.DisplayName) - $_"
+        }
+    }
+
+    $mcAfeeApps = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%McAfee%'"
+    foreach ($app in $mcAfeeApps) {
+        try {
+            $app.Uninstall() | Out-Null
+            Write-Log "SUCCESS: Uninstalled McAfee application: $($app.Name)"
+        } catch {
+            Write-Log "ERROR: Failed to uninstall McAfee application: $($app.Name) - $_"
+        }
     }
 }
 

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This PowerShell script is designed to debloat and optimize ASUS PCs by disabling unwanted services, scheduled tasks, and telemetry, as well as removing unnecessary applications. The script also provides options to modify the `hosts` file to block ASUS telemetry and other related domains, disable startup programs, and optimize power settings. This tool can significantly improve the performance and reduce unwanted processes running in the background.
+This PowerShell script is designed to debloat and optimize ASUS PCs by disabling unwanted services, scheduled tasks, and telemetry, as well as removing unnecessary applications. The script also provides options to modify the `hosts` file to block ASUS telemetry and other related domains, disable startup programs, optimize power settings, and remove McAfee software. This tool can significantly improve the performance and reduce unwanted processes running in the background.
 
 ## Features
 
@@ -14,21 +14,44 @@ This PowerShell script is designed to debloat and optimize ASUS PCs by disabling
 - **Block Telemetry Domains**: Modifies the `hosts` file to block known ASUS telemetry and tracking domains.
 - **Disable Startup Programs**: Disables ASUS-specific startup programs to reduce boot time and background processes.
 - **Optimize Power Settings**: Adjusts power settings to optimize system performance, including disabling standby, hibernate, and adjusting monitor timeouts.
+- **Remove McAfee Software**: Optionally stops and removes McAfee services, scheduled tasks, and applications.
 - **Logging**: Logs every step to a log file located in the same directory as the script.
 
 ## Usage Instructions
 
 ### Prerequisites
+
 - **Run as Administrator**: This script requires administrative privileges to make system-level changes.
 - **PowerShell**: The script should be executed in a PowerShell console with appropriate permissions.
 
 ### How to Run the Script
+
 1. **Download** the script to your local machine.
 2. **Open PowerShell as Administrator**.
 3. **Navigate** to the directory where the script is located using the `cd` command.
 4. **Execute** the script by running:
    ```powershell
    .\asus-debloater.ps1
+   ```
+
+### Configuring Script Toggles
+
+The script contains several toggleable sections that can be enabled or disabled based on your needs. These toggles allow you to customize which steps of the optimization process are executed. By default, all toggles are set to `$true` (enabled). To modify these settings:
+
+1. **Open the Script in a Text Editor**: Use a text editor such as Visual Studio Code or Notepad++.
+2. **Locate the Toggles Section**: At the top of the script, you will find the following toggles:
+   ```powershell
+   $enableServiceManagement = $true
+   $enableTaskDisabling = $true
+   $enableAppRemoval = $true
+   $enableNetworkConfig = $true
+   $enableStartupProgramDisable = $true
+   $enablePowerSettingsOptimization = $true
+   $enableMcAfeeRemoval = $true
+   ```
+3. **Modify the Values**: Change the value to `$false` for any step you do not wish to execute. For example, to disable McAfee removal:
+   ```powershell
+   $enableMcAfeeRemoval = $false
    ```
 
 ### What the Script Does
@@ -42,7 +65,7 @@ The script is broken down into the following steps:
 2. **Disable Scheduled Tasks**
    - Identifies and disables scheduled tasks related to ASUS services (e.g., Armoury Crate, LightingService).
 
-3. **Remove ASUS Applications** 
+3. **Remove ASUS Applications**  
    - Searches for installed ASUS applications and removes them from the system.
 
 4. **Network and Firewall Configurations**
@@ -56,12 +79,17 @@ The script is broken down into the following steps:
      - ASUS Battery Health Charging
    - Helps reduce boot time and prevent unnecessary programs from running in the background.
 
-6. **Optimize Power Settings** 
+6. **Optimize Power Settings**  
    - Adjusts power settings to optimize system performance by:
      - Disabling standby and hibernate timeout on AC power.
      - Setting monitor timeout to 10 minutes on AC power.
 
-7. **Log Completion**
+7. **McAfee Removal**
+   - **Stop McAfee Services**: Identifies and stops McAfee-related services, disabling them to prevent future execution.
+   - **Remove McAfee Applications**: Finds and removes McAfee applications from the system.
+   - **Remove McAfee Scheduled Tasks**: Identifies and disables scheduled tasks related to McAfee to prevent them from running in the background.
+
+8. **Log Completion**
    - Logs the completion of the debloating and optimization process.
 
 ## Log File
@@ -91,6 +119,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 This script is provided as-is without any warranty. The author is not responsible for any damage or issues that may arise from using this script. Use it at your own risk.
 
 ## Show your support
-If you like this, please consider making a donation! 
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/ggiovine)
+If you like this, please consider making a donation!  
+
+[![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/ggiovine)
